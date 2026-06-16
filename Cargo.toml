@@ -1,0 +1,14 @@
+[workspace]
+members = ["scip-coverage", "scip-tree-sitter"]
+resolver = "2"
+
+[workspace.package]
+edition = "2021"
+repository = "https://github.com/jelmer/scip-tools"
+
+[workspace.dependencies]
+anyhow = "1"
+clap = { version = "4", features = ["derive"] }
+ignore = "0.4"
+protobuf = "3"
+scip = "0.8.1"

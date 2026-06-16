@@ -1,0 +1,19 @@
+[package]
+name = "scip-coverage"
+version = "0.1.0"
+authors = ["Jelmer Vernooĳ <jelmer@jelmer.uk>"]
+edition.workspace = true
+repository.workspace = true
+license = "Apache-2.0"
+description = "Report source files left uncovered by every SCIP indexer, tallied by extension, to spot file types no indexer handles."
+
+[[bin]]
+name = "scip-coverage"
+path = "src/main.rs"
+
+[dependencies]
+anyhow.workspace = true
+clap.workspace = true
+ignore.workspace = true
+protobuf.workspace = true
+scip.workspace = true

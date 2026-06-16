@@ -1,0 +1,34 @@
+[package]
+name = "scip-tree-sitter"
+version = "0.1.0"
+authors = ["Jelmer Vernooĳ <jelmer@jelmer.uk>"]
+edition.workspace = true
+repository.workspace = true
+license = "Apache-2.0"
+description = "Generate a SCIP index carrying only syntax-highlighting tokens (no navigation) for config files tree-sitter can parse but no language indexer covers."
+
+[[bin]]
+name = "scip-tree-sitter"
+path = "src/main.rs"
+
+[dependencies]
+anyhow.workspace = true
+clap.workspace = true
+ignore.workspace = true
+protobuf.workspace = true
+scip.workspace = true
+tree-sitter = "0.26"
+tree-sitter-highlight = "0.26"
+tree-sitter-css = "0.23"
+tree-sitter-haskell = "0.23"
+tree-sitter-html = "0.23"
+tree-sitter-ini = "1.4"
+tree-sitter-json = "0.24"
+tree-sitter-lua = "0.2"
+tree-sitter-make = "1"
+tree-sitter-nix = "0.3"
+tree-sitter-ocaml = "0.23"
+tree-sitter-toml-ng = "0.7"
+tree-sitter-xml = "0.7"
+tree-sitter-yaml = "0.7"
+tree-sitter-md = "0.5.3"
