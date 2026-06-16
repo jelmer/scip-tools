@@ -168,6 +168,110 @@ fn grammars() -> Vec<Grammar> {
             highlights_query: tree_sitter_md::HIGHLIGHT_QUERY_BLOCK,
             captures: MARKUP,
         },
+        Grammar {
+            name: "c",
+            language: tree_sitter_c::LANGUAGE.into(),
+            highlights_query: tree_sitter_c::HIGHLIGHT_QUERY,
+            captures: BASE,
+        },
+        Grammar {
+            name: "cpp",
+            language: tree_sitter_cpp::LANGUAGE.into(),
+            highlights_query: tree_sitter_cpp::HIGHLIGHT_QUERY,
+            captures: BASE,
+        },
+        Grammar {
+            name: "python",
+            language: tree_sitter_python::LANGUAGE.into(),
+            highlights_query: tree_sitter_python::HIGHLIGHTS_QUERY,
+            captures: BASE,
+        },
+        Grammar {
+            name: "bash",
+            language: tree_sitter_bash::LANGUAGE.into(),
+            highlights_query: tree_sitter_bash::HIGHLIGHT_QUERY,
+            captures: BASE,
+        },
+        Grammar {
+            name: "java",
+            language: tree_sitter_java::LANGUAGE.into(),
+            highlights_query: tree_sitter_java::HIGHLIGHTS_QUERY,
+            captures: BASE,
+        },
+        Grammar {
+            name: "javascript",
+            language: tree_sitter_javascript::LANGUAGE.into(),
+            highlights_query: tree_sitter_javascript::HIGHLIGHT_QUERY,
+            captures: BASE,
+        },
+        Grammar {
+            name: "typescript",
+            language: tree_sitter_typescript::LANGUAGE_TYPESCRIPT.into(),
+            highlights_query: tree_sitter_typescript::HIGHLIGHTS_QUERY,
+            captures: BASE,
+        },
+        Grammar {
+            name: "ruby",
+            language: tree_sitter_ruby::LANGUAGE.into(),
+            highlights_query: tree_sitter_ruby::HIGHLIGHTS_QUERY,
+            captures: BASE,
+        },
+        Grammar {
+            name: "rust",
+            language: tree_sitter_rust::LANGUAGE.into(),
+            highlights_query: tree_sitter_rust::HIGHLIGHTS_QUERY,
+            captures: BASE,
+        },
+        Grammar {
+            name: "go",
+            language: tree_sitter_go::LANGUAGE.into(),
+            highlights_query: tree_sitter_go::HIGHLIGHTS_QUERY,
+            captures: BASE,
+        },
+        Grammar {
+            name: "php",
+            language: tree_sitter_php::LANGUAGE_PHP.into(),
+            highlights_query: tree_sitter_php::HIGHLIGHTS_QUERY,
+            captures: BASE,
+        },
+        Grammar {
+            name: "c-sharp",
+            language: tree_sitter_c_sharp::LANGUAGE.into(),
+            highlights_query: tree_sitter_c_sharp::HIGHLIGHTS_QUERY,
+            captures: BASE,
+        },
+        // tree-sitter-vim and tree-sitter-fish expose their grammar through a
+        // `language()` function rather than a `LANGUAGE` constant.
+        Grammar {
+            name: "vim",
+            language: tree_sitter_vim::language(),
+            highlights_query: tree_sitter_vim::HIGHLIGHTS_QUERY,
+            captures: BASE,
+        },
+        Grammar {
+            name: "scheme",
+            language: tree_sitter_scheme::LANGUAGE.into(),
+            highlights_query: tree_sitter_scheme::HIGHLIGHTS_QUERY,
+            captures: BASE,
+        },
+        Grammar {
+            name: "fortran",
+            language: tree_sitter_fortran::LANGUAGE.into(),
+            highlights_query: tree_sitter_fortran::HIGHLIGHTS_QUERY,
+            captures: BASE,
+        },
+        Grammar {
+            name: "r",
+            language: tree_sitter_r::LANGUAGE.into(),
+            highlights_query: tree_sitter_r::HIGHLIGHTS_QUERY,
+            captures: BASE,
+        },
+        Grammar {
+            name: "fish",
+            language: tree_sitter_fish::language(),
+            highlights_query: tree_sitter_fish::HIGHLIGHTS_QUERY,
+            captures: BASE,
+        },
     ]
 }
 
@@ -193,6 +297,25 @@ fn grammar_for_path(path: &Path) -> Option<&'static str> {
             "hs" => return Some("haskell"),
             "ml" | "mli" => return Some("ocaml"),
             "md" | "markdown" => return Some("markdown"),
+            "c" => return Some("c"),
+            "cc" | "cpp" | "cxx" | "hh" | "hpp" | "hxx" => return Some("cpp"),
+            // .h is C or C++; tree-sitter-c parses plain headers fine.
+            "h" => return Some("c"),
+            "py" | "pyi" | "pyw" => return Some("python"),
+            "sh" | "bash" | "ksh" => return Some("bash"),
+            "java" => return Some("java"),
+            "js" | "mjs" | "cjs" => return Some("javascript"),
+            "ts" => return Some("typescript"),
+            "rb" => return Some("ruby"),
+            "rs" => return Some("rust"),
+            "go" => return Some("go"),
+            "php" => return Some("php"),
+            "cs" => return Some("c-sharp"),
+            "vim" => return Some("vim"),
+            "scm" | "ss" => return Some("scheme"),
+            "f" | "f90" | "f95" | "f03" | "for" => return Some("fortran"),
+            "r" => return Some("r"),
+            "fish" => return Some("fish"),
             // freedesktop/systemd key=value [Section] files and generic INI.
             "ini" | "cfg" | "conf" | "desktop" | "service" | "timer" | "socket" | "mount"
             | "target" | "path" | "slice" | "scope" | "network" | "netdev" | "link" => {
@@ -210,8 +333,9 @@ fn grammar_for_path(path: &Path) -> Option<&'static str> {
 }
 
 /// Pick a grammar for an extensionless file from its `#!` line, or `None`. Only
-/// interpreters for grammars we cover are mapped; shell and perl deliberately
-/// return `None`, as scip-shell and scip-perl index those with real symbols.
+/// interpreters for grammars we cover are mapped. Where a real indexer also
+/// handles the language (scip-python, scip-shell), `--exclude-scip` lets that
+/// indexer's richer tokens win, so claiming the file here is harmless.
 fn grammar_for_shebang(source: &str) -> Option<&'static str> {
     let first_line = source.lines().next()?;
     let rest = first_line.strip_prefix("#!")?;
@@ -227,6 +351,11 @@ fn grammar_for_shebang(source: &str) -> Option<&'static str> {
     };
     match name {
         "lua" => Some("lua"),
+        "sh" | "bash" | "dash" | "ksh" => Some("bash"),
+        "fish" => Some("fish"),
+        "python" | "python2" | "python3" => Some("python"),
+        "ruby" => Some("ruby"),
+        "Rscript" => Some("r"),
         _ => None,
     }
 }
@@ -572,8 +701,8 @@ mod tests {
         assert_eq!(grammar_for_path(Path::new("a/b.json")), Some("json"));
         assert_eq!(grammar_for_path(Path::new("ci.yml")), Some("yaml"));
         assert_eq!(grammar_for_path(Path::new("x.yaml")), Some("yaml"));
-        // Shell scripts are indexed by scip-shell, not tree-sitter.
-        assert_eq!(grammar_for_path(Path::new("setup.sh")), None);
+        assert_eq!(grammar_for_path(Path::new("setup.sh")), Some("bash"));
+        // debian/rules is Makefile syntax but has no extension to key on.
         assert_eq!(grammar_for_path(Path::new("debian/rules")), None);
         assert_eq!(grammar_for_path(Path::new("Makefile")), Some("make"));
         assert_eq!(grammar_for_path(Path::new("GNUmakefile")), Some("make"));
@@ -591,6 +720,24 @@ mod tests {
         assert_eq!(grammar_for_path(Path::new("lib.ml")), Some("ocaml"));
         assert_eq!(grammar_for_path(Path::new("lib.mli")), Some("ocaml"));
         assert_eq!(grammar_for_path(Path::new("README.md")), Some("markdown"));
+        assert_eq!(grammar_for_path(Path::new("main.c")), Some("c"));
+        assert_eq!(grammar_for_path(Path::new("util.h")), Some("c"));
+        assert_eq!(grammar_for_path(Path::new("widget.cpp")), Some("cpp"));
+        assert_eq!(grammar_for_path(Path::new("widget.hpp")), Some("cpp"));
+        assert_eq!(grammar_for_path(Path::new("app.py")), Some("python"));
+        assert_eq!(grammar_for_path(Path::new("Main.java")), Some("java"));
+        assert_eq!(grammar_for_path(Path::new("index.js")), Some("javascript"));
+        assert_eq!(grammar_for_path(Path::new("index.ts")), Some("typescript"));
+        assert_eq!(grammar_for_path(Path::new("lib.rs")), Some("rust"));
+        assert_eq!(grammar_for_path(Path::new("main.go")), Some("go"));
+        assert_eq!(grammar_for_path(Path::new("app.rb")), Some("ruby"));
+        assert_eq!(grammar_for_path(Path::new("index.php")), Some("php"));
+        assert_eq!(grammar_for_path(Path::new("Program.cs")), Some("c-sharp"));
+        assert_eq!(grammar_for_path(Path::new("plugin.vim")), Some("vim"));
+        assert_eq!(grammar_for_path(Path::new("list.scm")), Some("scheme"));
+        assert_eq!(grammar_for_path(Path::new("calc.f90")), Some("fortran"));
+        assert_eq!(grammar_for_path(Path::new("plot.r")), Some("r"));
+        assert_eq!(grammar_for_path(Path::new("config.fish")), Some("fish"));
         assert_eq!(grammar_for_path(Path::new("LICENSE")), None);
     }
 
@@ -602,12 +749,14 @@ mod tests {
             Some("lua")
         );
         assert_eq!(grammar_for_shebang("#!/usr/bin/env lua\n"), Some("lua"));
-        // Shell and perl are indexed by scip-shell / scip-perl, so tree-sitter
-        // must not claim them via the shebang.
-        assert_eq!(grammar_for_shebang("#!/bin/sh\n"), None);
-        assert_eq!(grammar_for_shebang("#!/bin/bash\n"), None);
+        assert_eq!(grammar_for_shebang("#!/bin/sh\n"), Some("bash"));
+        assert_eq!(grammar_for_shebang("#!/bin/bash\n"), Some("bash"));
+        assert_eq!(
+            grammar_for_shebang("#!/usr/bin/env python3\n"),
+            Some("python")
+        );
+        // Perl has no grammar wired in, so its shebang yields nothing.
         assert_eq!(grammar_for_shebang("#!/usr/bin/perl\n"), None);
-        assert_eq!(grammar_for_shebang("#!/usr/bin/env python3\n"), None);
         // Files with no shebang yield nothing.
         assert_eq!(grammar_for_shebang("print(1)\n"), None);
     }
@@ -704,6 +853,31 @@ mod tests {
         // Analytics.hs). This guards the grammar wiring on the runtime we pin.
         let kinds = kinds_for("haskell", "module M where\nf x = x + 1\n");
         assert!(kinds.contains(&SyntaxKind::Keyword));
+        assert!(kinds.contains(&SyntaxKind::NumericLiteral));
+    }
+
+    #[test]
+    fn highlights_c_end_to_end() {
+        let kinds = kinds_for("c", "/* c */\nint main(void) { return 0; }\n");
+        assert!(kinds.contains(&SyntaxKind::Comment));
+        assert!(kinds.contains(&SyntaxKind::IdentifierType));
+        assert!(kinds.contains(&SyntaxKind::NumericLiteral));
+    }
+
+    #[test]
+    fn highlights_python_end_to_end() {
+        let kinds = kinds_for("python", "# c\nx = \"s\"\ndef f():\n    return 1\n");
+        assert!(kinds.contains(&SyntaxKind::Comment));
+        assert!(kinds.contains(&SyntaxKind::StringLiteral));
+        assert!(kinds.contains(&SyntaxKind::Keyword));
+    }
+
+    #[test]
+    fn highlights_vim_via_language_fn() {
+        // tree-sitter-vim is wired through its `language()` function rather than
+        // a `LANGUAGE` constant, so this also guards that path.
+        let kinds = kinds_for("vim", "\" comment\nlet x = 1\n");
+        assert!(kinds.contains(&SyntaxKind::Comment));
         assert!(kinds.contains(&SyntaxKind::NumericLiteral));
     }
 }

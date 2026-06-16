@@ -25,13 +25,19 @@ scip-tree-sitter \
 
 ## Grammars
 
-TOML, JSON, YAML, Make, INI (including freedesktop `.desktop` entries and systemd
-unit files), Nix, XML, CSS, HTML, Lua, Haskell, OCaml, and Markdown.
+Config and markup: TOML, JSON, YAML, Make, INI (including freedesktop `.desktop`
+entries and systemd unit files), Nix, XML, CSS, HTML, and Markdown.
+
+Languages: C, C++, Python, Bash, Java, JavaScript, TypeScript, Ruby, Rust, Go,
+PHP, C#, Lua, Haskell, OCaml, Scheme, Fortran, R, Fish, and Vimscript.
+
+Many of these languages also have dedicated SCIP indexers that produce richer,
+navigable tokens. Where one runs, pass its output via `--exclude-scip` so its
+documents win and tree-sitter only fills the gaps it leaves.
 
 Files are matched by extension and by well-known filenames (`Makefile`,
 `Cargo.lock`, ...). Extensionless files are matched by their `#!` line for the
-interpreters of covered grammars; shell and Perl are deliberately left to
-scip-shell and scip-perl, which index them with real symbols.
+interpreters of covered grammars.
 
 Markdown uses the block grammar only, so headings, code fences, and list/quote
 markers highlight, but inline spans (emphasis, links) render plain.
